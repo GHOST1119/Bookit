@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Bookit.Models;
 
 namespace Bookit.Data
 {
@@ -12,5 +13,6 @@ namespace Bookit.Data
             : base(options)
         {
         }
+        public DbSet<Book> Books { get; set; }
     }
 }
