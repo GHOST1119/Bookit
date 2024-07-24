@@ -1,11 +1,11 @@
 ﻿@model Bookit.Models.Book
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "More about " + Model.Name;
     var noinsert = "وارد نشده";
 }
 
-<h1>Details</h1>
+<h1>@ViewData["Title"]</h1>
 
 <div>
     <h4>Book</h4>
@@ -70,6 +70,5 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Gallery">Back to Gallery</a>
 </div>

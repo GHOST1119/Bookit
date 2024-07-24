@@ -1,9 +1,13 @@
 ﻿using Bookit.Data;
 using Bookit.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Bookit.Controllers
 {
+    [Authorize(Roles ="Admin")]
     public class UserController : Controller
     {
         private readonly ApplicationDbContext _db;
@@ -11,53 +15,86 @@ namespace Bookit.Controllers
         {
             _db = db;
         }
-
-        public IActionResult Index()
+        // GET: Index
+        public async Task<IActionResult> Index()
         {
-            var Users = _db.Users;
-            return View(Users);
+            return View(await _db.Users.ToListAsync());
         }
+        // GET: Create
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
+        // POST: Create
         [HttpPost]
-        public IActionResult Create(User model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(User model)
         {
             _db.Users.Add(model);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        // GET: Edit
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            var User = _db.Users.Find(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var User = await _db.Users.FindAsync(id);
+            if (User == null)
+            {
+                return NotFound();
+            }
             return View(User);
         }
+        // POST: Edit
         [HttpPost]
-        public IActionResult Edit(User model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(User model)
         {
             _db.Entry<User>(model).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-        public IActionResult Details(int id)
+        // GET: Details
+        public async Task<IActionResult> Details(int? id)
         {
-            var User = _db.Users.Find(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var User = await _db.Users.FindAsync(id);
+            if (User == null)
+            {
+                return NotFound();
+            }
             return View(User);
         }
+        // GET: Delete
         [HttpGet]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int? Id)
         {
-            var User = _db.Users.Find(id);
+            if (Id == null)
+            {
+                return NotFound();
+            }
+            var User = await _db.Users.FindAsync(Id);
+            if (User == null)
+            {
+                return NotFound();
+            }
             return View(User);
         }
+        // POST: Delete
         [HttpPost]
-        public IActionResult Delete(User model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(User model)
         {
             _db.Entry<User>(model).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
     }
