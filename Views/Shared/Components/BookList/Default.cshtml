@@ -1,0 +1,8 @@
+﻿@model IEnumerable<Bookit.Models.Book>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <partial name="_BookItemThumbPartial" model="item" />
+    }
+</div>

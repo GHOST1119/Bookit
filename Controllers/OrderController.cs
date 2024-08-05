@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Bookit.Data;
 using Bookit.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bookit.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class OrderController : Controller
     {
         private readonly ApplicationDbContext _db;
@@ -44,16 +46,17 @@ namespace Bookit.Controllers
         }
 
         // GET: Order/Create
+        [AllowAnonymous]
         public async Task<IActionResult> Create(int? bookId)
         {
             if (bookId == null)
             {
                 return NotFound();
             }
-            var book = await _db.Orders.FindAsync(bookId);
+            var book = await _db.Books.FindAsync(bookId);
             var model = new Order();
             model.Price = book.Price;
-            model.BookId = book.BookId;
+            model.BookId = book.Id;
             if (model == null)
             {
                 return NotFound();
@@ -65,6 +68,7 @@ namespace Bookit.Controllers
         // POST: Order/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<IActionResult> Create([Bind("Id,FullName,Address,PostalCode,PhoneNumber,BookId,Price,OrderState,TimeCreated")] Order order)
         {
             if (ModelState.IsValid)
@@ -158,6 +162,10 @@ namespace Bookit.Controllers
         private bool OrderExists(int id)
         {
             return _db.Orders.Any(e => e.Id == id);
+        }
+        public IActionResult Receipt(Order order)
+        {
+            return View(order);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Bookit.Controllers
         // GET: Book
         public async Task<IActionResult> Index()
         {
-            var categorylist =_db.Categorys.ToListAsync();
+            var categorylist = await _db.Categorys.ToListAsync();
             ViewData["categorylist"] = categorylist;
             return View(await _db.Books.ToListAsync());
         }
@@ -33,9 +33,9 @@ namespace Bookit.Controllers
         }
         // GET: Create
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            var categorylist = _db.Categorys.ToListAsync();
+            var categorylist = await _db.Categorys.ToListAsync();
             ViewData["categorylist"] = categorylist;
             return View();
         }
@@ -57,7 +57,7 @@ namespace Bookit.Controllers
                 return NotFound();
             }
             var book = await _db.Books.FirstOrDefaultAsync(m => m.Id == id);
-            var categorylist = _db.Categorys.ToListAsync();
+            var categorylist = await _db.Categorys.ToListAsync();
             ViewData["categorylist"] = categorylist;
             if (book == null)
             {
@@ -83,7 +83,7 @@ namespace Bookit.Controllers
                 return NotFound();
             }
             var book = await _db.Books.FirstOrDefaultAsync(m => m.Id == id);
-            var categorylist = _db.Categorys.ToListAsync();
+            var categorylist = await _db.Categorys.ToListAsync();
             ViewData["categorylist"] = categorylist;
             if (book == null)
             {
@@ -99,12 +99,17 @@ namespace Bookit.Controllers
                 return NotFound();
             }
             var book = await _db.Books.FirstOrDefaultAsync(m => m.Id == id);
-            var categorylist =_db.Categorys.ToListAsync();
+            var categorylist =await _db.Categorys.ToListAsync();
             ViewData["categorylist"] = categorylist;
-            if (book == null)
+            if (book == null || categorylist == null)
             {
                 return NotFound();
             }
+            var viewModel = new BookDetailsViewModel
+            {
+                Book = book,
+                Categories = categorylist
+            };
             return View(book);
         }
         // GET: Delete
@@ -116,7 +121,7 @@ namespace Bookit.Controllers
                 return NotFound();
             }
             var book = await _db.Books.FirstOrDefaultAsync(m => m.Id == id);
-            var categorylist =_db.Categorys.ToListAsync();
+            var categorylist =await _db.Categorys.ToListAsync();
             ViewData["categorylist"] = categorylist;
             if (book == null)
             {
