@@ -45,13 +45,13 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'coreuser', passwordVariable: 'CREDENTIAL_PASSWORD', usernameVariable: 'CREDENTIAL_USERNAME')]) {
+                    withCredentials([usernamePassword(credentialsId: 'coreuser', passwordVariable: 'M1234554321m', usernameVariable: 'coreapperfan')]) {
                     powershell '''
                     
-                    $credentials = New-Object System.Management.Automation.PSCredential($env:CREDENTIAL_USERNAME, (ConvertTo-SecureString $env:CREDENTIAL_PASSWORD -AsPlainText -Force))
+                    $credentials = New-Object System.Management.Automation.PSCredential($env:coreapperfan, (ConvertTo-SecureString $env:M1234554321m -AsPlainText -Force))
 
                     
-                    New-PSDrive -Name X -PSProvider FileSystem -Root "\\\\LAPTOP-DFRQ3ILG\\coreapp" -Persist -Credential $credentials
+                    New-PSDrive -Name X -PSProvider FileSystem -Root "\\\\DESKTOP-NUUM7PV\\coreapp" -Persist -Credential $credentials
 
                     
                     Copy-Item -Path '.\\publish\\*' -Destination 'X:\' -Force
