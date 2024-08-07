@@ -1,10 +1,13 @@
 ﻿using Bookit.Data;
 using Bookit.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting.Internal;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,10 +30,20 @@ namespace Bookit.Controllers
         }
         // GET: Gallery
         [AllowAnonymous]
-        public async Task<IActionResult> Gallery(string term)
+        [Route("book/gallery/{term?}")]
+        public async Task<IActionResult> Gallery(string term = "")
         {
-            var model = _db.Books.Where(p=>  p.Name.Contains(term)).FirstOrDefault();
-            return View(await _db.Books.ToListAsync());
+            dynamic model;
+            if (string.IsNullOrEmpty(term))
+            {
+                model = await _db.Books.ToListAsync();
+            }
+            else
+            {
+                model = await _db.Books.Where(p => p.Name.Contains(term)).ToListAsync();
+            }
+            ViewData["term"] = term;
+            return View(model);
         }
         // GET: Create
         [HttpGet]
@@ -43,9 +56,37 @@ namespace Bookit.Controllers
         // POST: Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Book model)
+        public async Task<IActionResult> Create(Book model, IFormFile imageFile)
         {
-            _db.Books.Add(model);
+            // Generate a unique file name
+            string BookName = model.Name.Replace(" ", "_");
+            string imageExtension = Path.GetExtension(imageFile.FileName);
+            //string ImageName = BookName + imageExtension.Substring(imageExtension.LastIndexOf("."));                      
+            // save in database
+            Book bookModel = new Book()
+            {
+                Name = model.Name,
+                CategoryId = model.CategoryId,
+                Description = model.Description,
+                Price = model.Price,
+                Author = model.Author,
+                Year = model.Year,
+                Pages = model.Pages,
+            };
+            _db.Books.Add(bookModel);
+            await _db.SaveChangesAsync();
+            // update database
+            int newBookId = bookModel.Id;
+            // Define the path to save the image
+            string ImageName = newBookId + "_" + BookName + imageExtension;
+            var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Books\" + ImageName);
+            // Save the image file
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(stream);
+            }
+            bookModel.ImagePath = $"Books/{ImageName}";
+            _db.Books.Update(bookModel);
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
