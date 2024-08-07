@@ -27,8 +27,9 @@ namespace Bookit.Controllers
         }
         // GET: Gallery
         [AllowAnonymous]
-        public async Task<IActionResult> Gallery()
+        public async Task<IActionResult> Gallery(string term)
         {
+            var model = _db.Books.Where(p=>  p.Name.Contains(term)).FirstOrDefault();
             return View(await _db.Books.ToListAsync());
         }
         // GET: Create
