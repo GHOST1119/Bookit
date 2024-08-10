@@ -10,7 +10,7 @@
 <div>
     <h4>Book</h4>
     <hr />
-    <img src="@Model.ImagePath" alt="@Model.Name" class="img-responsive"/>
+    <img src="@Url.Content("~/" + Model.ImagePath)" alt="@Model.Name" class="img-responsive" style="width:100px;height:100px" />
     <dl class="row">
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Name)

@@ -110,9 +110,22 @@ namespace Bookit.Controllers
         // POST: Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Book model)
+        public async Task<IActionResult> Edit(Book model, IFormFile imageFile)
         {
-            _db.Entry<Book>(model).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            // Generate a unique file name
+            string BookName = model.Name.Replace(" ", "_");
+            string imageExtension = Path.GetExtension(imageFile.FileName);
+            // Define the path to save the image
+            string ImageName = model.Id + "_" + BookName + imageExtension;
+            var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Books\" + ImageName);
+            // Save the image file
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(stream);
+            }
+            model.ImagePath = $"Books/{ImageName}";
+            // save in database
+            _db.Books.Update(model);
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
